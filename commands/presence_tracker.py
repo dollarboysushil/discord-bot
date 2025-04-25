@@ -211,114 +211,167 @@ def save_current_activities():
         print(f"Error saving current activities: {e}")
         traceback.print_exc()
 
+# Common function to create activity log embeds
+async def create_activity_log_embed(user, activities, time_period, color):
+    if not activities:
+        return None
+    
+    # Create an embed for the response
+    embed = discord.Embed(
+        title=f"{time_period} Activity Log",
+        description=f"Activity summary for {user.display_name}",
+        color=color
+    )
+    
+    # Display all activities
+    total_time = 0
+    for i, (activity_name, duration) in enumerate(activities):
+        total_time += duration
+        formatted_time = format_time(duration)
+        if i < 3:  # Highlight top 3
+            embed.add_field(
+                name=f"#{i+1}: {activity_name}",
+                value=f"**{formatted_time}**",
+                inline=False
+            )
+        else:
+            embed.add_field(
+                name=activity_name,
+                value=formatted_time,
+                inline=True
+            )
+    
+    # Add total time
+    embed.set_footer(text=f"Total tracked time: {format_time(total_time)}")
+    
+    return embed
+
 # Register the presence tracker commands
 def register_presence_tracker(bot):
     print("Registering presence tracker...")
     setup_database()
     
-    # Define command functions
-    async def log_today_cmd(interaction: discord.Interaction):
+    # Add commands to the bot
+    @bot.tree.command(name="log_today", description="View your or another user's activity log for today")
+    @app_commands.describe(user="The user to view activity log for (leave empty for yourself)")
+    async def log_today(interaction: discord.Interaction, user: discord.Member = None):
         await interaction.response.defer()
         
         try:
-            print(f"Running log_today for user: {interaction.user.name} (ID: {interaction.user.id})")
-            user_id = interaction.user.id
-            activities = get_activity_data(user_id, days=1)
+            # If no user is specified, use the command invoker
+            target_user = user if user else interaction.user
+            print(f"Running log_today for user: {target_user.name} (ID: {target_user.id})")
+            
+            # Check permissions if viewing another user's data
+            if user and user != interaction.user:
+                # Check if the command invoker has appropriate permissions
+                if not interaction.user.guild_permissions.administrator and not interaction.user.guild_permissions.manage_guild:
+                    await interaction.followup.send("You don't have permission to view another user's activity log.")
+                    return
+            
+            activities = get_activity_data(target_user.id, days=1)
             
             if not activities:
-                print(f"No activities found for user {interaction.user.name}")
-                await interaction.followup.send("No activity data recorded for today.")
+                print(f"No activities found for user {target_user.name}")
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} today.")
                 return
             
-            # Create an embed for the response
-            embed = discord.Embed(
-                title="Today's Activity Log",
-                description=f"Activity summary for {interaction.user.display_name} in the last 24 hours",
-                color=discord.Color.blue()
+            embed = await create_activity_log_embed(
+                target_user, 
+                activities, 
+                "Today's", 
+                discord.Color.blue()
             )
             
-            # Display all activities
-            total_time = 0
-            for i, (activity_name, duration) in enumerate(activities):
-                total_time += duration
-                formatted_time = format_time(duration)
-                if i < 3:  # Highlight top 3
-                    embed.add_field(
-                        name=f"#{i+1}: {activity_name}",
-                        value=f"**{formatted_time}**",
-                        inline=False
-                    )
-                else:
-                    embed.add_field(
-                        name=activity_name,
-                        value=formatted_time,
-                        inline=True
-                    )
-            
-            # Add total time
-            embed.set_footer(text=f"Total tracked time: {format_time(total_time)}")
-            
-            await interaction.followup.send(embed=embed)
+            if embed:
+                await interaction.followup.send(embed=embed)
+            else:
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} today.")
         except Exception as e:
-            print(f"Error in log_today_cmd: {e}")
+            print(f"Error in log_today command: {e}")
             traceback.print_exc()
             await interaction.followup.send(f"An error occurred while processing your request: {e}")
 
-    async def log_week_cmd(interaction: discord.Interaction):
+    @bot.tree.command(name="log_week", description="View your or another user's activity log for the past week")
+    @app_commands.describe(user="The user to view activity log for (leave empty for yourself)")
+    async def log_week(interaction: discord.Interaction, user: discord.Member = None):
         await interaction.response.defer()
         
         try:
-            print(f"Running log_week for user: {interaction.user.name} (ID: {interaction.user.id})")
-            user_id = interaction.user.id
-            activities = get_activity_data(user_id, days=7)
+            # If no user is specified, use the command invoker
+            target_user = user if user else interaction.user
+            print(f"Running log_week for user: {target_user.name} (ID: {target_user.id})")
+            
+            # Check permissions if viewing another user's data
+            if user and user != interaction.user:
+                # Check if the command invoker has appropriate permissions
+                if not interaction.user.guild_permissions.administrator and not interaction.user.guild_permissions.manage_guild:
+                    await interaction.followup.send("You don't have permission to view another user's activity log.")
+                    return
+            
+            activities = get_activity_data(target_user.id, days=7)
             
             if not activities:
-                print(f"No activities found for user {interaction.user.name}")
-                await interaction.followup.send("No activity data recorded for the past week.")
+                print(f"No activities found for user {target_user.name}")
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} in the past week.")
                 return
             
-            # Create an embed for the response
-            embed = discord.Embed(
-                title="Weekly Activity Log",
-                description=f"Activity summary for {interaction.user.display_name} in the last 7 days",
-                color=discord.Color.green()
+            embed = await create_activity_log_embed(
+                target_user, 
+                activities, 
+                "Weekly", 
+                discord.Color.green()
             )
             
-            # Display all activities
-            total_time = 0
-            for i, (activity_name, duration) in enumerate(activities):
-                total_time += duration
-                formatted_time = format_time(duration)
-                if i < 3:  # Highlight top 3
-                    embed.add_field(
-                        name=f"#{i+1}: {activity_name}",
-                        value=f"**{formatted_time}**",
-                        inline=False
-                    )
-                else:
-                    embed.add_field(
-                        name=activity_name,
-                        value=formatted_time,
-                        inline=True
-                    )
-            
-            # Add total time
-            embed.set_footer(text=f"Total tracked time: {format_time(total_time)}")
-            
-            await interaction.followup.send(embed=embed)
+            if embed:
+                await interaction.followup.send(embed=embed)
+            else:
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} in the past week.")
         except Exception as e:
-            print(f"Error in log_week_cmd: {e}")
+            print(f"Error in log_week command: {e}")
             traceback.print_exc()
             await interaction.followup.send(f"An error occurred while processing your request: {e}")
     
-    # Add commands to the bot
-    @bot.tree.command(name="log_today", description="View your activity log for today")
-    async def log_today(interaction: discord.Interaction):
-        await log_today_cmd(interaction)
-    
-    @bot.tree.command(name="log_week", description="View your activity log for the past week")
-    async def log_week(interaction: discord.Interaction):
-        await log_week_cmd(interaction)
+    # Add monthly log command
+    @bot.tree.command(name="log_month", description="View your or another user's activity log for the past month")
+    @app_commands.describe(user="The user to view activity log for (leave empty for yourself)")
+    async def log_month(interaction: discord.Interaction, user: discord.Member = None):
+        await interaction.response.defer()
+        
+        try:
+            # If no user is specified, use the command invoker
+            target_user = user if user else interaction.user
+            print(f"Running log_month for user: {target_user.name} (ID: {target_user.id})")
+            
+            # Check permissions if viewing another user's data
+            if user and user != interaction.user:
+                # Check if the command invoker has appropriate permissions
+                if not interaction.user.guild_permissions.administrator and not interaction.user.guild_permissions.manage_guild:
+                    await interaction.followup.send("You don't have permission to view another user's activity log.")
+                    return
+            
+            activities = get_activity_data(target_user.id, days=30)
+            
+            if not activities:
+                print(f"No activities found for user {target_user.name}")
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} in the past month.")
+                return
+            
+            embed = await create_activity_log_embed(
+                target_user, 
+                activities, 
+                "Monthly", 
+                discord.Color.purple()
+            )
+            
+            if embed:
+                await interaction.followup.send(embed=embed)
+            else:
+                await interaction.followup.send(f"No activity data recorded for {target_user.display_name} in the past month.")
+        except Exception as e:
+            print(f"Error in log_month command: {e}")
+            traceback.print_exc()
+            await interaction.followup.send(f"An error occurred while processing your request: {e}")
     
     # Add a manual refresh command for debugging
     @bot.tree.command(name="debug_presence", description="Debug presence tracking")
@@ -363,6 +416,12 @@ def register_presence_tracker(bot):
     @log_week.error
     async def log_week_error(interaction: discord.Interaction, error):
         print(f"Error in log_week command: {error}")
+        traceback.print_exc()
+        await interaction.followup.send(f"An error occurred: {error}")
+        
+    @log_month.error
+    async def log_month_error(interaction: discord.Interaction, error):
+        print(f"Error in log_month command: {error}")
         traceback.print_exc()
         await interaction.followup.send(f"An error occurred: {error}")
     
