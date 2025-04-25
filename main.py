@@ -30,10 +30,13 @@ from commands.tag_vc import tag_vc
 
 from commands.announce import announce
 from commands.speak import register_speak_commands  # Import speak commands
-from commands.dm_loop import dm_loop
-from commands.drag_loop import drag_loop
+
 from commands.change_nickname import change_nickname
 #from commands.display_htb_stats import update_presence, fetch_profile_data
+
+
+from commands.loops_commands import register_loop_commands
+from commands.key_manager import register_key_management
 
 
 from commands.presence_tracker import register_presence_tracker
@@ -50,12 +53,14 @@ async def on_ready():
     tag_vc(bot)
     announce(bot)
     register_speak_commands(bot)
-    dm_loop(bot)
-    drag_loop(bot)
+    
     change_nickname(bot)
     register_presence_tracker(bot)
-
-  
+    register_loop_commands(bot)
+    register_key_management(bot)
+    
+    
+    
     print("Syncing commands with Discord...")
     await bot.tree.sync()
     print("Commands synced!")

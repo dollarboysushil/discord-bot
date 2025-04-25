@@ -51,7 +51,8 @@ def check_database():
             latest = cursor.fetchall()
             print("Latest records:")
             for record in latest:
-                print(f"  {record}")
+                safe_record = str(record).encode('ascii', 'replace').decode('ascii')
+                print(f"  {safe_record}")
         
         conn.close()
     except Exception as e:
