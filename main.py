@@ -41,6 +41,8 @@ from commands.key_manager import register_key_management
 
 from commands.presence_tracker import register_presence_tracker
 from commands.speak import register_speak_commands
+from commands.htb_api import register_htb_presence
+
 
 @bot.event
 async def on_ready():
@@ -59,7 +61,8 @@ async def on_ready():
     register_loop_commands(bot)
     register_key_management(bot)
     
-    
+    # Start HackTheBox presence updates
+    register_htb_presence(bot, APP_KEY, USER_ID)
     
     print("Syncing commands with Discord...")
     await bot.tree.sync()
