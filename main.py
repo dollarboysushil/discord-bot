@@ -29,11 +29,11 @@ from commands.speak import register_speak_commands  # Import speak commands
 from commands.dm_loop import dm_loop
 from commands.drag_loop import drag_loop
 from commands.change_nickname import change_nickname
-from commands.display_htb_stats import update_presence, fetch_profile_data
+#from commands.display_htb_stats import update_presence, fetch_profile_data
 
 
-
-
+from commands.presence_tracker import register_presence_tracker
+from commands.speak import register_speak_commands
 
 @bot.event
 async def on_ready():
@@ -49,16 +49,20 @@ async def on_ready():
     dm_loop(bot)
     drag_loop(bot)
     change_nickname(bot)
+    register_presence_tracker(bot)
+
+  
+    print("Syncing commands with Discord...")
+    await bot.tree.sync()
+    print("Commands synced!")
+    
     
 
-    # Start the fetch_profile_data task
-    fetch_profile_data.start(bot, APP_KEY, USER_ID)
-    
-    # Start the update_presence loop directly
-    update_presence.start(bot, APP_KEY, USER_ID)
-
-
-
+@bot.event
+async def on_disconnect():
+    from commands.presence_tracker import save_current_activities
+    save_current_activities()  # Save any ongoing activities
+    print("Bot disconnected, saved ongoing activities")
 
 # Run bot
 bot.run("MTE2NjA2NTMyNzgxMDAzMTY2Ng.GtT7qS.pGDI5uJg-JCbQwvCJnuFecxdSHeM-n-ihEqb5g")
