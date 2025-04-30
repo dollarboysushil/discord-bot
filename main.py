@@ -37,7 +37,7 @@ from commands.change_nickname import change_nickname
 
 from commands.loops_commands import register_loop_commands
 from commands.key_manager import register_key_management
-
+from commands.music import register_music_commands
 
 from commands.presence_tracker import register_presence_tracker
 from commands.speak import register_speak_commands
@@ -63,7 +63,7 @@ async def on_ready():
     
     # Start HackTheBox presence updates
     register_htb_presence(bot, APP_KEY, USER_ID)
-    
+    register_music_commands(bot) 
     print("Syncing commands with Discord...")
     await bot.tree.sync()
     print("Commands synced!")
