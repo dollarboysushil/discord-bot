@@ -1,4 +1,5 @@
-> [!Caution] > **Notice**: This bot may be susceptible to multiple security risks. It was developed exclusively for private or personal use. **Commercial use is prohibited.**
+> [!Caution]
+> This bot may be susceptible to multiple security risks. It was developed exclusively for private or personal use. Commercial use is prohibited.
 
 # Discord Bot
 
