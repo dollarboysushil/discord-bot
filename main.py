@@ -39,7 +39,7 @@ from commands.loops_commands import register_loop_commands
 from commands.key_manager import register_key_management
 from commands.music import register_music_commands
 
-from commands.presence_tracker import register_presence_tracker
+#from commands.presence_tracker import register_presence_tracker
 from commands.speak import register_speak_commands
 from commands.htb_api import register_htb_presence
 
@@ -57,7 +57,7 @@ async def on_ready():
     register_speak_commands(bot)
     
     change_nickname(bot)
-    register_presence_tracker(bot)
+    #register_presence_tracker(bot)
     register_loop_commands(bot)
     register_key_management(bot)
     
