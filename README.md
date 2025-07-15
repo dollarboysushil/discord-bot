@@ -1,3 +1,5 @@
+> [!Caution] > **Notice**: This bot may be susceptible to multiple security risks. It was developed exclusively for private or personal use. **Commercial use is prohibited.**
+
 # Discord Bot
 
 A versatile Discord bot built with Python, designed to enhance your server experience with various commands and utilities.
