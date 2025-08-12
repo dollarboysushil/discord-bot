@@ -1,3 +1,16 @@
+from commands.spoiler_moderation import register_spoiler_moderation
+from commands.htb_api import register_htb_presence
+from commands.speak import register_speak_commands
+from commands.music import register_music_commands
+from commands.key_manager import register_key_management
+from commands.loops_commands import register_loop_commands
+from commands.change_nickname import change_nickname
+from commands.speak import register_speak_commands  # Import speak commands
+from commands.announce import announce
+from commands.tag_vc import tag_vc
+from commands.say_hello import say_hello
+from commands.tag import tag_user
+from commands.ping import register_ping_command
 import discord
 from discord.ext import commands
 import asyncio
@@ -14,13 +27,12 @@ load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
 
-
 # Initialize bot with application command support
 intents = discord.Intents.default()
 
 intents.message_content = True
-intents.presences = True 
-intents.members = True 
+intents.presences = True
+intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -29,27 +41,13 @@ APP_KEY = os.getenv("APP_KEY")
 USER_ID = 349197
 
 
-
 # Import and register commands
-from commands.ping import register_ping_command
-from commands.tag import tag_user
-from commands.say_hello import say_hello
-from commands.tag_vc import tag_vc
-
-from commands.announce import announce
-from commands.speak import register_speak_commands  # Import speak commands
-
-from commands.change_nickname import change_nickname
-#from commands.display_htb_stats import update_presence, fetch_profile_data
 
 
-from commands.loops_commands import register_loop_commands
-from commands.key_manager import register_key_management
-from commands.music import register_music_commands
+# from commands.display_htb_stats import update_presence, fetch_profile_data
 
-#from commands.presence_tracker import register_presence_tracker
-from commands.speak import register_speak_commands
-from commands.htb_api import register_htb_presence
+
+# from commands.presence_tracker import register_presence_tracker
 
 
 @bot.event
@@ -63,20 +61,21 @@ async def on_ready():
     tag_vc(bot)
     announce(bot)
     register_speak_commands(bot)
-    
+
     change_nickname(bot)
-    #register_presence_tracker(bot)
+    # register_presence_tracker(bot)
     register_loop_commands(bot)
     register_key_management(bot)
-    
+
     # Start HackTheBox presence updates
     register_htb_presence(bot, APP_KEY, USER_ID)
-    register_music_commands(bot) 
+    register_music_commands(bot)
+    register_spoiler_moderation(bot)
+
     print("Syncing commands with Discord...")
     await bot.tree.sync()
     print("Commands synced!")
-    
-    
+
 
 @bot.event
 async def on_disconnect():
