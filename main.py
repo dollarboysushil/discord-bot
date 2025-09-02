@@ -11,6 +11,7 @@ from commands.tag_vc import tag_vc
 from commands.say_hello import say_hello
 from commands.tag import tag_user
 from commands.ping import register_ping_command
+from commands.hint_rules import register_hint_rules
 import discord
 from discord.ext import commands
 import asyncio
@@ -71,6 +72,7 @@ async def on_ready():
     register_htb_presence(bot, APP_KEY, USER_ID)
     register_music_commands(bot)
     register_spoiler_moderation(bot)
+    register_hint_rules(bot)
 
     print("Syncing commands with Discord...")
     await bot.tree.sync()
@@ -82,6 +84,7 @@ async def on_disconnect():
     from commands.presence_tracker import save_current_activities
     save_current_activities()  # Save any ongoing activities
     print("Bot disconnected, saved ongoing activities")
+
 
 # Run bot
 bot.run(DISCORD_TOKEN)
