@@ -12,6 +12,8 @@ from commands.say_hello import say_hello
 from commands.tag import tag_user
 from commands.ping import register_ping_command
 from commands.hint_rules import register_hint_rules
+from commands.box_release_timer import register_box_release_timer
+
 import discord
 from discord.ext import commands
 import asyncio
@@ -73,7 +75,7 @@ async def on_ready():
     register_music_commands(bot)
     register_spoiler_moderation(bot)
     register_hint_rules(bot)
-
+    register_box_release_timer(bot)
     print("Syncing commands with Discord...")
     await bot.tree.sync()
     print("Commands synced!")
